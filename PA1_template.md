@@ -15,9 +15,24 @@ function nested inside the `read.csv()` function. Note that in the function
 conversion. The `lubridate` library will be used in the last item of this 
 report.
 
-```{r read_the_data}
+
+```r
 knitr::opts_chunk$set(fig.path="figures/")
 library(lubridate)
+```
+
+```
+## 
+## Attaching package: 'lubridate'
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     date, intersect, setdiff, union
+```
+
+```r
 dataset <- read.csv(
     unzip("activity.zip"), 
     colClasses = c("integer", "Date", "integer")
@@ -36,25 +51,33 @@ The variables included in this dataset are:
 
 Let's check if there are `NA` values ​​in the dataset.
 
-```{r is_na}
+
+```r
 check_na <- colSums(is.na(dataset))
 check_na
 ```
 
-Note that there are `r check_na["steps"]` `NA` values ​​in the `steps` variable.
+```
+##    steps     date interval 
+##     2304        0        0
+```
+
+Note that there are 2304 `NA` values ​​in the `steps` variable.
 
 
 ## What is mean total number of steps taken per day?
 
 In this step we will ignore the `NA` values ​​in the dataset.
 
-```{r na_omit}
+
+```r
 dataset_without_na <- na.omit(dataset)
 ```
 
 First let's do an aggregation, calculating the number of steps for each day.
 
-```{r aggregate_sum_steps_day}
+
+```r
 data_to_plot <- aggregate(
     dataset_without_na[,c("steps")],
     by=list(date = dataset_without_na$date),
@@ -65,7 +88,8 @@ data_to_plot <- aggregate(
 The figure below shows the histogram of the total number of steps taken each
 day.
 
-```{r histogram_na_ignored}
+
+```r
 hist(
     data_to_plot$x,
     col = "red",
@@ -75,14 +99,27 @@ hist(
 )
 ```
 
+![](figures/histogram_na_ignored-1.png)<!-- -->
+
 The mean and median total number of steps taken per day is shown below.
 
-```{r mean_median_total_steps_per_day}
+
+```r
 mean_steps_taken_each_day <- mean(data_to_plot$x)
 mean_steps_taken_each_day
+```
 
+```
+## [1] 10766.19
+```
+
+```r
 median_steps_taken_each_day <- median(data_to_plot$x)
 median_steps_taken_each_day
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -90,7 +127,8 @@ median_steps_taken_each_day
 Next, we will aggregate the data by calculating the average number of steps per 
 day.
 
-```{r aggregate_mean_steps_day}
+
+```r
 data_to_plot <- aggregate(
     dataset_without_na[,c("steps")],
     by=list(interval = dataset_without_na$interval),
@@ -102,7 +140,8 @@ The following figure shows the time series plot of the 5-minute interval
 (x-axis) and the average number of steps taken, averaged across all days 
 (y-axis).
 
-```{r time_series_all_days}
+
+```r
 plot(
     data_to_plot$interval,
     data_to_plot$x,
@@ -114,13 +153,21 @@ plot(
     )
 ```
 
+![](figures/time_series_all_days-1.png)<!-- -->
+
 The 5-minute interval, on average across all the days in the dataset, that 
 contains the maximum number of steps is shown bellow.
 
-```{r maximum_number_steps_on_avarage}
+
+```r
 max_steps_index <- which.max(data_to_plot$x)
 
 data_to_plot[max_steps_index,]
+```
+
+```
+##     interval        x
+## 104      835 206.1698
 ```
 
 ## Imputing missing values
@@ -129,10 +176,18 @@ The imputation of values ​​for the `NA` data will be done considering the me
 of the number of steps of the corresponding range, code below shows this 
 procedure.
 
-```{r  filling_in_missing_values}
+
+```r
 # Calculate and report the total number of missing values in the dataset
 colSums(is.na(dataset))
+```
 
+```
+##    steps     date interval 
+##     2304        0        0
+```
+
+```r
 # calculates the median for each interval
 median_steps_per_interval <- aggregate(
     dataset_without_na[,c("steps")],
@@ -155,11 +210,17 @@ for (i in 1:nrow(dataset_na_replaced)) {
 colSums(is.na(dataset_na_replaced))
 ```
 
+```
+##    steps     date interval 
+##        0        0        0
+```
+
 The figure below shows the histogram of the total number of steps taken each 
 day, considering the dataset with the `NA` data replaced by the median of the 
 interval corresponding.
 
-```{r histogram_na_replaced}
+
+```r
 data_to_plot <- aggregate(
     dataset_na_replaced[,c("steps")],
     by=list(date = dataset_na_replaced$date),
@@ -175,20 +236,33 @@ hist(
 )
 ```
 
+![](figures/histogram_na_replaced-1.png)<!-- -->
+
 Note that the first column of the histogram had an increase in values ​​compared to
 to the first histogram, which shows us that the median of several intervals
 is zero.
 
 The new mean and median are shown below.
 
-```{r new_mean_median}
+
+```r
 # mean an median ---------------------------------------------------------------
 
 mean_steps_taken_each_day_na_replaced <- mean(data_to_plot$x)
 mean_steps_taken_each_day_na_replaced
+```
 
+```
+## [1] 9503.869
+```
+
+```r
 median_steps_taken_each_day_na_replaced <- median(data_to_plot$x)
 median_steps_taken_each_day_na_replaced
+```
+
+```
+## [1] 10395
 ```
 
 
@@ -199,7 +273,8 @@ interval (x-axis) and the average number of steps taken, averaged across all
 weekday days or weekend days (y-axis).
 
 
-```{r weekdays_weekend_panel}
+
+```r
 # new factor variable in the dataset with two levels – "weekday" and "weekend"
 # indicating whether a given date is a weekday or weekend day
 day <- c("weekend", "weekday", "weekday", "weekday", "weekday", "weekday", "weekend")
@@ -239,5 +314,7 @@ plot(
     ylab="average number of steps taken, averaged across weekday"
     )
 ```
+
+![](figures/weekdays_weekend_panel-1.png)<!-- -->
 
 On weekends there is more activity than on weekdays!!!
